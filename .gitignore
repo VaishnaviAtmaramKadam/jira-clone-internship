@@ -1,0 +1,27 @@
+# Node / Next.js
+client/node_modules/
+client/.next/
+client/out/
+
+# Environment files
+client/.env
+client/.env.local
+client/.env.development
+client/.env.production
+
+# Java / Maven
+server/target/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+server/.env
+server/uploads/attachments/
