@@ -47,8 +47,9 @@ export function connectWebSocket(
     }
 
     const client = new Client({
-        brokerURL: "ws://localhost:8080/ws",
-
+        brokerURL: process.env.NEXT_PUBLIC_API_BASE_URL
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL.replace(/^http/, "ws").replace(/\/$/, "")}/ws`
+        : "ws://localhost:8080/ws",
         // Automatically reconnect after temporary connection failure.
         reconnectDelay: 5000,
 
