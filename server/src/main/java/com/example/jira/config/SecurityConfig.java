@@ -1,3 +1,4 @@
+
 package com.example.jira.config;
 
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,10 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
+                        .allowedOrigins(
+                                "http://localhost:3000",
+                                "https://jira-clone-internship-1.onrender.com"
+                        )
                         .allowedMethods(
                                 "GET",
                                 "POST",
