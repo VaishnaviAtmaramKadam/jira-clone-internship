@@ -232,9 +232,7 @@ public class WebSocketSubscriptionInterceptor
                                     .filter(
                                             id -> id != null
                                     )
-                                    .map(
-                                            String::trim
-                                    )
+                                    .map(id -> id.trim())
                                     .anyMatch(
                                             id -> id.equals(
                                                     authenticatedUserId

@@ -29,6 +29,10 @@ public class User {
     private String emailVerificationToken;
     private Instant emailVerificationExpiry;
 
+    // Password Reset
+    private String passwordResetTokenHash;
+    private Instant passwordResetExpiry;
+
     // Email notification preference
     private boolean emailNotificationsEnabled = true;
 
@@ -219,5 +223,24 @@ public class User {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+
+    // PASSWORD RESET TOKEN HASH
+    public String getPasswordResetTokenHash() {
+        return passwordResetTokenHash;
+    }
+
+    public void setPasswordResetTokenHash(String passwordResetTokenHash) {
+        this.passwordResetTokenHash = passwordResetTokenHash;
+    }
+
+    // PASSWORD RESET EXPIRY
+    public Instant getPasswordResetExpiry() {
+        return passwordResetExpiry;
+    }
+
+    public void setPasswordResetExpiry(Instant passwordResetExpiry) {
+        this.passwordResetExpiry = passwordResetExpiry;
     }
 }
