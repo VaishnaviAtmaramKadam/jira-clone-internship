@@ -31,7 +31,10 @@ import com.example.jira.repository.WorkLogRepository;
 
 @RestController
 @RequestMapping("/api/worklogs")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://jira-clone-internship-1.onrender.com"
+})
 public class WorkLogController {
 
     private final WorkLogRepository workLogRepository;
@@ -59,9 +62,8 @@ public class WorkLogController {
     public ResponseEntity<?> createWorkLog(
             @RequestBody WorkLog workLog) {
 
-        // Validate Issue ID
-        if (workLog.getIssueId() == null ||
-                workLog.getIssueId().isBlank()) {
+        if (workLog.getIssueId() == null
+                || workLog.getIssueId().isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body("Issue ID is required");
@@ -73,7 +75,6 @@ public class WorkLogController {
                     .body("Invalid issue ID");
         }
 
-        // Find Issue
         Issue issue = issueRepository.findById(
                 new ObjectId(workLog.getIssueId())
         ).orElse(null);
@@ -84,9 +85,8 @@ public class WorkLogController {
                     .body("Issue not found");
         }
 
-        // Validate User ID
-        if (workLog.getUserId() == null ||
-                workLog.getUserId().isBlank()) {
+        if (workLog.getUserId() == null
+                || workLog.getUserId().isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body("User ID is required");
@@ -98,7 +98,6 @@ public class WorkLogController {
                     .body("Invalid user ID");
         }
 
-        // Find User
         User user = userRepository.findById(
                 new ObjectId(workLog.getUserId())
         ).orElse(null);
@@ -109,58 +108,42 @@ public class WorkLogController {
                     .body("User not found");
         }
 
-        // =====================================================
-        // VALIDATION
-        // =====================================================
-
-        // Duration must be positive
         if (workLog.getDurationMinutes() <= 0) {
 
             return ResponseEntity.badRequest()
                     .body("Duration must be greater than 0");
         }
 
-        // Work date required
         if (workLog.getWorkDate() == null) {
 
             return ResponseEntity.badRequest()
                     .body("Work date is required");
         }
 
-        // Future date not allowed
         if (workLog.getWorkDate().isAfter(LocalDate.now())) {
 
             return ResponseEntity.badRequest()
                     .body("Work date cannot be in the future");
         }
 
-        // Description required
-        if (workLog.getDescription() == null ||
-                workLog.getDescription().isBlank()) {
+        if (workLog.getDescription() == null
+                || workLog.getDescription().isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body("Description is required");
         }
 
-        // =====================================================
-        // AUTOMATIC PROJECT / SPRINT
-        // =====================================================
-
+        // Automatically take project and sprint from issue
         workLog.setProjectId(issue.getProjectId());
         workLog.setSprintId(issue.getSprintId());
         workLog.setUpdatedAt(Instant.now());
 
-        // Save Work Log
         WorkLog saved = workLogRepository.save(workLog);
-
-        // =====================================================
-        // AUDIT LOG - CREATE
-        // =====================================================
 
         createAuditLog(
                 saved.getId(),
                 saved.getIssueId(),
-                user.getId(),
+                user.getId() != null ? user.getId().toString() : null,
                 "CREATE",
                 "Work log created: "
                         + saved.getDurationMinutes()
@@ -247,14 +230,12 @@ public class WorkLogController {
             @PathVariable String id,
             @RequestBody WorkLog updatedWorkLog) {
 
-        // Validate Work Log ID
         if (!ObjectId.isValid(id)) {
 
             return ResponseEntity.badRequest()
                     .body("Invalid work log ID");
         }
 
-        // Find existing Work Log
         WorkLog existing = workLogRepository.findById(
                 new ObjectId(id)
         ).orElse(null);
@@ -265,9 +246,8 @@ public class WorkLogController {
                     .body("Work log not found");
         }
 
-        // Validate User ID
-        if (updatedWorkLog.getUserId() == null ||
-                updatedWorkLog.getUserId().isBlank()) {
+        if (updatedWorkLog.getUserId() == null
+                || updatedWorkLog.getUserId().isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body("User ID is required");
@@ -279,7 +259,6 @@ public class WorkLogController {
                     .body("Invalid user ID");
         }
 
-        // Find User
         User user = userRepository.findById(
                 new ObjectId(updatedWorkLog.getUserId())
         ).orElse(null);
@@ -290,7 +269,13 @@ public class WorkLogController {
                     .body("User not found");
         }
 
-        // Find Issue
+        if (existing.getIssueId() == null
+                || !ObjectId.isValid(existing.getIssueId())) {
+
+            return ResponseEntity.badRequest()
+                    .body("Invalid issue ID in work log");
+        }
+
         Issue issue = issueRepository.findById(
                 new ObjectId(existing.getIssueId())
         ).orElse(null);
@@ -301,11 +286,7 @@ public class WorkLogController {
                     .body("Issue not found");
         }
 
-        // =====================================================
-        // PERMISSION
-        // Only Assignee or Project Manager can MODIFY
-        // =====================================================
-
+        // Only Assignee or Project Manager can modify
         if (!hasWorkLogPermission(issue, user)) {
 
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -314,10 +295,6 @@ public class WorkLogController {
                                     + "can modify time entries"
                     );
         }
-
-        // =====================================================
-        // VALIDATION
-        // =====================================================
 
         if (updatedWorkLog.getDurationMinutes() <= 0) {
 
@@ -337,16 +314,12 @@ public class WorkLogController {
                     .body("Work date cannot be in the future");
         }
 
-        if (updatedWorkLog.getDescription() == null ||
-                updatedWorkLog.getDescription().isBlank()) {
+        if (updatedWorkLog.getDescription() == null
+                || updatedWorkLog.getDescription().isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body("Description is required");
         }
-
-        // =====================================================
-        // OLD DATA FOR AUDIT
-        // =====================================================
 
         String oldDetails =
                 "Duration: "
@@ -355,10 +328,6 @@ public class WorkLogController {
                         + existing.getWorkDate()
                         + ", Description: "
                         + existing.getDescription();
-
-        // =====================================================
-        // UPDATE
-        // =====================================================
 
         existing.setDurationMinutes(
                 updatedWorkLog.getDurationMinutes()
@@ -377,10 +346,6 @@ public class WorkLogController {
         WorkLog saved =
                 workLogRepository.save(existing);
 
-        // =====================================================
-        // NEW DATA FOR AUDIT
-        // =====================================================
-
         String newDetails =
                 "Duration: "
                         + saved.getDurationMinutes()
@@ -389,14 +354,10 @@ public class WorkLogController {
                         + ", Description: "
                         + saved.getDescription();
 
-        // =====================================================
-        // AUDIT LOG - UPDATE
-        // =====================================================
-
         createAuditLog(
                 saved.getId(),
                 saved.getIssueId(),
-                user.getId(),
+                user.getId() != null ? user.getId().toString() : null,
                 "UPDATE",
                 "Old: ["
                         + oldDetails
@@ -417,14 +378,12 @@ public class WorkLogController {
             @PathVariable String id,
             @RequestParam String userId) {
 
-        // Validate Work Log ID
         if (!ObjectId.isValid(id)) {
 
             return ResponseEntity.badRequest()
                     .body("Invalid work log ID");
         }
 
-        // Find Work Log
         WorkLog existing = workLogRepository.findById(
                 new ObjectId(id)
         ).orElse(null);
@@ -435,7 +394,6 @@ public class WorkLogController {
                     .body("Work log not found");
         }
 
-        // Validate User ID
         if (userId == null || userId.isBlank()) {
 
             return ResponseEntity.badRequest()
@@ -448,7 +406,6 @@ public class WorkLogController {
                     .body("Invalid user ID");
         }
 
-        // Find User
         User user = userRepository.findById(
                 new ObjectId(userId)
         ).orElse(null);
@@ -459,7 +416,13 @@ public class WorkLogController {
                     .body("User not found");
         }
 
-        // Find Issue
+        if (existing.getIssueId() == null
+                || !ObjectId.isValid(existing.getIssueId())) {
+
+            return ResponseEntity.badRequest()
+                    .body("Invalid issue ID in work log");
+        }
+
         Issue issue = issueRepository.findById(
                 new ObjectId(existing.getIssueId())
         ).orElse(null);
@@ -470,11 +433,7 @@ public class WorkLogController {
                     .body("Issue not found");
         }
 
-        // =====================================================
-        // PERMISSION
-        // Only Assignee or Project Manager can DELETE
-        // =====================================================
-
+        // Only Assignee or Project Manager can delete
         if (!hasWorkLogPermission(issue, user)) {
 
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -484,10 +443,6 @@ public class WorkLogController {
                     );
         }
 
-        // =====================================================
-        // AUDIT DETAILS BEFORE DELETE
-        // =====================================================
-
         String details =
                 "Deleted work log: "
                         + existing.getDurationMinutes()
@@ -496,17 +451,12 @@ public class WorkLogController {
                         + ", Description: "
                         + existing.getDescription();
 
-        // Delete
         workLogRepository.delete(existing);
-
-        // =====================================================
-        // AUDIT LOG - DELETE
-        // =====================================================
 
         createAuditLog(
                 existing.getId(),
                 existing.getIssueId(),
-                user.getId(),
+                user.getId() != null ? user.getId().toString() : null,
                 "DELETE",
                 details
         );
@@ -544,22 +494,24 @@ public class WorkLogController {
             User user) {
 
         // Task Assignee
-        if (issue.getAssigneeId() != null &&
-                issue.getAssigneeId().equals(user.getId())) {
+        if (issue.getAssigneeId() != null
+                && user.getId() != null
+                && issue.getAssigneeId().equals(
+                        user.getId().toString())) {
 
             return true;
         }
 
         // Project Manager
-        if (user.getRole() != null &&
-                user.getRole().equalsIgnoreCase(
+        if (user.getRole() != null
+                && user.getRole().equalsIgnoreCase(
                         "PROJECT_MANAGER")) {
 
             return true;
         }
 
-        if (user.getRole() != null &&
-                user.getRole().equalsIgnoreCase(
+        if (user.getRole() != null
+                && user.getRole().equalsIgnoreCase(
                         "PROJECT MANAGER")) {
 
             return true;

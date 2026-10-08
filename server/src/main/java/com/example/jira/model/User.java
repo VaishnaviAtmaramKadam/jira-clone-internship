@@ -20,227 +20,250 @@ public class User {
     private String avatar;
     private String phone;
 
-    // Account status
-    private boolean active = true;
+    private boolean active;
+    private boolean emailVerified;
+    private boolean emailNotificationsEnabled;
 
-    // Email verification
-    private boolean emailVerified = true;
     private String pendingEmail;
     private String emailVerificationToken;
     private Instant emailVerificationExpiry;
 
-    // Password Reset
-    private String passwordResetTokenHash;
-    private Instant passwordResetExpiry;
+    private Instant createdAt;
+    private Instant updatedAt;
 
-    // Email notification preference
-    private boolean emailNotificationsEnabled = true;
-
-    // Timestamps
-    private Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
-
-    // =====================================================
-    // ID
-    // =====================================================
-    public String getId() {
-        return id != null ? id.toHexString() : null;
+    // =========================
+    // DEFAULT CONSTRUCTOR
+    // =========================
+    public User() {
     }
 
-    public ObjectId getObjectId() {
+    // =========================
+    // GET ID
+    // =========================
+    public ObjectId getId() {
         return id;
     }
 
+    // =========================
+    // SET ID
+    // =========================
     public void setId(ObjectId id) {
         this.id = id;
     }
 
-    // =====================================================
-    // NAME
-    // =====================================================
+    // =========================
+    // GET NAME
+    // =========================
     public String getName() {
         return name;
     }
 
+    // =========================
+    // SET NAME
+    // =========================
     public void setName(String name) {
         this.name = name;
     }
 
-    // =====================================================
-    // EMAIL
-    // =====================================================
+    // =========================
+    // GET EMAIL
+    // =========================
     public String getEmail() {
         return email;
     }
 
+    // =========================
+    // SET EMAIL
+    // =========================
     public void setEmail(String email) {
         this.email = email;
     }
 
-    // =====================================================
-    // PASSWORD
-    // =====================================================
+    // =========================
+    // GET PASSWORD
+    // =========================
     public String getPassword() {
         return password;
     }
 
+    // =========================
+    // SET PASSWORD
+    // =========================
     public void setPassword(String password) {
         this.password = password;
     }
 
-    // =====================================================
-    // ROLE
-    // =====================================================
+    // =========================
+    // GET ROLE
+    // =========================
     public String getRole() {
         return role;
     }
 
+    // =========================
+    // SET ROLE
+    // =========================
     public void setRole(String role) {
         this.role = role;
     }
 
-    // =====================================================
-    // GROUP
-    // =====================================================
+    // =========================
+    // GET GROUP
+    // =========================
     public String getGroup() {
         return group;
     }
 
+    // =========================
+    // SET GROUP
+    // =========================
     public void setGroup(String group) {
         this.group = group;
     }
 
-    // =====================================================
-    // AVATAR
-    // =====================================================
+    // =========================
+    // GET AVATAR
+    // =========================
     public String getAvatar() {
         return avatar;
     }
 
+    // =========================
+    // SET AVATAR
+    // =========================
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
 
-    // =====================================================
-    // PHONE
-    // =====================================================
+    // =========================
+    // GET PHONE
+    // =========================
     public String getPhone() {
         return phone;
     }
 
+    // =========================
+    // SET PHONE
+    // =========================
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    // =====================================================
-    // ACTIVE
-    // =====================================================
+    // =========================
+    // GET ACTIVE
+    // =========================
     public boolean isActive() {
         return active;
     }
 
+    // =========================
+    // SET ACTIVE
+    // =========================
     public void setActive(boolean active) {
         this.active = active;
     }
 
-    // =====================================================
-    // EMAIL VERIFIED
-    // =====================================================
+    // =========================
+    // GET EMAIL VERIFIED
+    // =========================
     public boolean isEmailVerified() {
         return emailVerified;
     }
 
+    // =========================
+    // SET EMAIL VERIFIED
+    // =========================
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
     }
 
-    // =====================================================
-    // PENDING EMAIL
-    // =====================================================
+    // =========================
+    // GET EMAIL NOTIFICATIONS
+    // =========================
+    public boolean isEmailNotificationsEnabled() {
+        return emailNotificationsEnabled;
+    }
+
+    // =========================
+    // SET EMAIL NOTIFICATIONS
+    // =========================
+    public void setEmailNotificationsEnabled(
+            boolean emailNotificationsEnabled) {
+
+        this.emailNotificationsEnabled = emailNotificationsEnabled;
+    }
+
+    // =========================
+    // GET PENDING EMAIL
+    // =========================
     public String getPendingEmail() {
         return pendingEmail;
     }
 
+    // =========================
+    // SET PENDING EMAIL
+    // =========================
     public void setPendingEmail(String pendingEmail) {
         this.pendingEmail = pendingEmail;
     }
 
-    // =====================================================
-    // EMAIL VERIFICATION TOKEN
-    // =====================================================
+    // =========================
+    // GET EMAIL VERIFICATION TOKEN
+    // =========================
     public String getEmailVerificationToken() {
         return emailVerificationToken;
     }
 
-    public void setEmailVerificationToken(String emailVerificationToken) {
+    // =========================
+    // SET EMAIL VERIFICATION TOKEN
+    // =========================
+    public void setEmailVerificationToken(
+            String emailVerificationToken) {
+
         this.emailVerificationToken = emailVerificationToken;
     }
 
-    // =====================================================
-    // EMAIL VERIFICATION EXPIRY
-    // =====================================================
+    // =========================
+    // GET EMAIL VERIFICATION EXPIRY
+    // =========================
     public Instant getEmailVerificationExpiry() {
         return emailVerificationExpiry;
     }
 
+    // =========================
+    // SET EMAIL VERIFICATION EXPIRY
+    // =========================
     public void setEmailVerificationExpiry(
             Instant emailVerificationExpiry) {
 
         this.emailVerificationExpiry = emailVerificationExpiry;
     }
 
-    // =====================================================
-    // EMAIL NOTIFICATIONS ENABLED
-    // =====================================================
-    public boolean isEmailNotificationsEnabled() {
-        return emailNotificationsEnabled;
-    }
-
-    public void setEmailNotificationsEnabled(
-            boolean emailNotificationsEnabled) {
-
-        this.emailNotificationsEnabled
-                = emailNotificationsEnabled;
-    }
-
-    // =====================================================
-    // CREATED AT
-    // =====================================================
+    // =========================
+    // GET CREATED AT
+    // =========================
     public Instant getCreatedAt() {
         return createdAt;
     }
 
+    // =========================
+    // SET CREATED AT
+    // =========================
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    // =====================================================
-    // UPDATED AT
-    // =====================================================
+    // =========================
+    // GET UPDATED AT
+    // =========================
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
+    // =========================
+    // SET UPDATED AT
+    // =========================
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-
-    // PASSWORD RESET TOKEN HASH
-    public String getPasswordResetTokenHash() {
-        return passwordResetTokenHash;
-    }
-
-    public void setPasswordResetTokenHash(String passwordResetTokenHash) {
-        this.passwordResetTokenHash = passwordResetTokenHash;
-    }
-
-    // PASSWORD RESET EXPIRY
-    public Instant getPasswordResetExpiry() {
-        return passwordResetExpiry;
-    }
-
-    public void setPasswordResetExpiry(Instant passwordResetExpiry) {
-        this.passwordResetExpiry = passwordResetExpiry;
     }
 }

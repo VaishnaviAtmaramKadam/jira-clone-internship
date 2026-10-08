@@ -1,5 +1,6 @@
 package com.example.jira.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -27,13 +28,22 @@ public class Projectcontroller {
     private final Projectrepository projectrepository;
     private final UserRepository userRepository;
 
-    public Projectcontroller(Projectrepository projectrepository, UserRepository userRepository) {
+    public Projectcontroller(
+            Projectrepository projectrepository,
+            UserRepository userRepository) {
+
         this.projectrepository = projectrepository;
         this.userRepository = userRepository;
     }
 
     @PostMapping
     public Project createProject(@RequestBody Project project) {
+
+        // Prevent memberIds from being null
+        if (project.getMemberIds() == null) {
+            project.setMemberIds(new ArrayList<>());
+        }
+
         return projectrepository.save(project);
     }
 
@@ -44,36 +54,63 @@ public class Projectcontroller {
 
     @GetMapping("/{id}")
     public ProjectResponse getProjectById(@PathVariable String id) {
+
         Project project = projectrepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         // Fetch owner
-        User owner = userRepository.findById(new ObjectId(project.getOwnerId()))
-                .orElse(null);
+        User owner = null;
 
-        // Fetch members
-        List<ObjectId> memberObjectIds = project.getMemberIds().stream()
+        if (project.getOwnerId() != null) {
+            owner = userRepository.findById(
+                    new ObjectId(project.getOwnerId())
+            ).orElse(null);
+        }
+
+        // Fetch members safely
+        List<String> memberIds = project.getMemberIds();
+
+        if (memberIds == null) {
+            memberIds = new ArrayList<>();
+        }
+
+        List<ObjectId> memberObjectIds = memberIds.stream()
+                .filter(memberId -> memberId != null && !memberId.isBlank())
                 .map(ObjectId::new)
                 .toList();
 
-        List<User> members = userRepository.findByIdIn(memberObjectIds);
+        List<User> members = new ArrayList<>();
+
+        if (!memberObjectIds.isEmpty()) {
+            members = userRepository.findByIdIn(memberObjectIds);
+        }
 
         return new ProjectResponse(
                 project.getId(),
                 project.getName(),
                 project.getDescription(),
                 owner,
-                members);
+                members
+        );
     }
 
     @PutMapping("/{id}")
-    public Project updaProject(@PathVariable String id, @RequestBody Project updated) {
+    public Project updaProject(
+            @PathVariable String id,
+            @RequestBody Project updated) {
+
         Project project = projectrepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new RuntimeException("project not found"));
 
         project.setName(updated.getName());
         project.setDescription(updated.getDescription());
-        project.setMemberIds(updated.getMemberIds());
+
+        // Prevent memberIds from becoming null
+        if (updated.getMemberIds() == null) {
+            project.setMemberIds(new ArrayList<>());
+        } else {
+            project.setMemberIds(updated.getMemberIds());
+        }
 
         return projectrepository.save(project);
     }

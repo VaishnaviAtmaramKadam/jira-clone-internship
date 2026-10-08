@@ -12,8 +12,6 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByPasswordResetTokenHash(String token);
-
     Optional<User> findByEmailVerificationToken(String token);
 
     List<User> findByIdIn(List<ObjectId> ids);
